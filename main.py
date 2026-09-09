@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from utils import REV_YN_MAP
 
-MODEL_PATH = "./model/telco_churn_pipeline.joblib"
+MODEL_PATH = "./model/telco_churn_pipeline_latest.joblib"
 
 model = None
 
