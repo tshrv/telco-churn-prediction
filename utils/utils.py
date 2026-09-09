@@ -1,21 +1,20 @@
-from typing import ClassVar
-
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 RANDOM_STATE = 42
+SERVICE_COLS = [
+    'PhoneService', 'MultipleLines', 'InternetService', 'OnlineSecurity',
+    'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies'
+]
+BINARY_COLS = ['Partner', 'Dependents', 'PhoneService', 'PaperlessBilling']
+YN_MAP = {'Yes': 1, 'No': 0}
+GENDER_MAP = {'Male': 1, 'Female': 0}
+
+REV_YN_MAP = {v:k for k, v in YN_MAP.items()}
 
 class TelcoFeatureEngineer(BaseEstimator, TransformerMixin):
     """Reproduces every cleaning + feature-engineering step from your notebook,
     starting from the raw column schema."""
-
-    SERVICE_COLS: ClassVar[list[str]] = [
-        'PhoneService', 'MultipleLines', 'InternetService', 'OnlineSecurity',
-        'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies'
-    ]
-    BINARY_COLS: ClassVar[list[str]] = ['Partner', 'Dependents', 'PhoneService', 'PaperlessBilling']
-    YN_MAP: ClassVar[dict[str, int]] = {'Yes': 1, 'No': 0}
-    GENDER_MAP: ClassVar[dict[str, int]] = {'Male': 1, 'Female': 0}
     def fit(self, X, y=None):
         return self  # nothing here needs to be learned from data
 
@@ -28,9 +27,9 @@ class TelcoFeatureEngineer(BaseEstimator, TransformerMixin):
         df[str_cols] = df[str_cols].apply(lambda col: col.str.strip())
 
         # Binary mappings
-        for col in self.BINARY_COLS:
-            df[col] = df[col].map(self.YN_MAP)
-        df['gender'] = df['gender'].map(self.GENDER_MAP)
+        for col in BINARY_COLS:
+            df[col] = df[col].map(YN_MAP)
+        df['gender'] = df['gender'].map(GENDER_MAP)
 
         # Engineered features
         df['TenureGroup'] = df['tenure'].apply(self._tenure_group)
@@ -50,7 +49,7 @@ class TelcoFeatureEngineer(BaseEstimator, TransformerMixin):
     def _count_services(self, row):
         return sum(
             row[col] not in ['No', 'No internet service', 'No phone service']
-            for col in self.SERVICE_COLS
+            for col in SERVICE_COLS
         )
 
 from sklearn.compose import ColumnTransformer
